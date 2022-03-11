@@ -1,24 +1,10 @@
-# alibaba-test
+# restcountries
 
-## Project setup
-```
-npm install
-```
+### Demo:
+[See demo](https://yasaman-countries.netlify.app/)
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Bonuses I've had done:
+- Toggle the color scheme between light and dark mode without using any 3rd party libraries
+- Add sort functionality for both Population and Country Name
+- Store the filters in the URL query strings and sync it with the component filter object
+- Add lazy loading for country images and list

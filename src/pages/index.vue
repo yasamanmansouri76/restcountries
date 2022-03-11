@@ -16,14 +16,14 @@
         <b-button-group class="float-lg-right float-left">
           <b-button
             :class="activeSort === 'population' ? 'active' : ''"
-            @click="sortCountries('population')"
+            @click="handleSortCountries('population')"
           >
             <b-icon icon="sort-alpha-down"></b-icon>
             Population
           </b-button>
           <b-button
             :class="activeSort === 'name' ? 'active' : ''"
-            @click="sortCountries('name')"
+            @click="handleSortCountries('name')"
           >
             <b-icon icon="sort-numeric-down"></b-icon>
             Country Name
@@ -34,7 +34,7 @@
         <b-form-select
           v-model="selectedRegion"
           class="mb-3"
-          @input="filterByRegion"
+          @input="handleFilterByRegion"
         >
           <b-form-select-option :value="null"
             >Please select an option</b-form-select-option
@@ -135,7 +135,18 @@ export default {
           this.resetData();
         });
     },
-    search() {
+    handleFiltersChange(keyword, sort, region) {
+      if (sort) {
+        this.sortCountries(sort);
+      } else if (keyword) {
+        this.search(keyword);
+      } else if (region) {
+        this.filterByRegion(region);
+      } else {
+        this.resetAllFilters();
+      }
+    },
+    handleSearch() {
       if (this.searchVal !== null) {
         this.resetSelectedRegion();
         this.resetSort();
@@ -148,9 +159,27 @@ export default {
           });
       }
     },
-    filterByRegion() {
+    search(keyword) {
+      this.searchVal = keyword;
+      this.resetPageIndex();
+      if (this.searchVal !== "") {
+        this.handleSearch();
+      } else {
+        this.resetSort();
+        this.loadAllData();
+      }
+    },
+    handleFilterByRegion() {
       if (this.selectedRegion !== null) {
-        this.page = 1;
+        this.$router.replace({
+          query: { region: this.selectedRegion },
+        });
+      }
+    },
+    filterByRegion(region) {
+      this.selectedRegion = region;
+      if (this.selectedRegion !== null) {
+        this.resetPageIndex();
         this.resetSort();
         this.resetSearchValue();
         this.getCountryByRegion(this.selectedRegion)
@@ -162,27 +191,23 @@ export default {
           });
       }
     },
-    sortCountries(sortField) {
-      this.activeSort = sortField;
+    handleSortCountries(sortField) {
+      this.$router.replace({
+        query: { ...this.$route.query, sort: sortField },
+      });
+    },
+    sortCountries(sort) {
+      this.activeSort = sort;
       this.allCountries.sort((a, b) => {
-        if (typeof a[sortField] === "string") {
-          return a[sortField].localeCompare(b[sortField]);
+        if (typeof a[sort] === "string") {
+          return a[sort].localeCompare(b[sort]);
         } else {
-          return a[sortField] - b[sortField];
+          return a[sort] - b[sort];
         }
       });
-      this.page = 1;
+      this.resetPageIndex();
       this.shownCountries = [];
       this.getShownCountries();
-    },
-    setData(data) {
-      this.allCountries = data;
-      this.shownCountries = [];
-      this.getShownCountries();
-    },
-    resetData() {
-      this.allCountries = [];
-      this.shownCountries = [];
     },
     getShownCountries() {
       this.isCountriesLoading = true;
@@ -195,6 +220,25 @@ export default {
       this.shownCountries.push(...countries);
       this.page++;
       this.isCountriesLoading = false;
+    },
+    resetAllFilters() {
+      this.resetPageIndex();
+      this.resetSort();
+      this.resetSearchValue();
+      this.resetSelectedRegion();
+      this.loadAllData();
+    },
+    resetPageIndex() {
+      this.page = 1;
+    },
+    setData(data) {
+      this.allCountries = data;
+      this.shownCountries = [];
+      this.getShownCountries();
+    },
+    resetData() {
+      this.allCountries = [];
+      this.shownCountries = [];
     },
     resetSelectedRegion() {
       this.selectedRegion = null;
@@ -211,13 +255,16 @@ export default {
   },
   watch: {
     searchVal: lodash.debounce(function () {
-      this.page = 1;
-      if (this.searchVal !== "") {
-        this.search();
-      } else {
-        this.loadAllData();
+      if (this.searchVal !== null) {
+        this.$router.replace({
+          query: { keyword: this.searchVal },
+        });
       }
     }, 1000),
+    $route() {
+      const { keyword, sort, region } = this.$route.query;
+      this.handleFiltersChange(keyword, sort, region);
+    },
   },
 };
 </script>

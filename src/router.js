@@ -6,6 +6,7 @@ import countryDetail from "./pages/country/_code";
 Vue.use(VueRouter);
 
 export default new VueRouter({
+  mode: "history",
   routes: [
     {
       path: "/",

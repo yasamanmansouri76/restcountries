@@ -97,9 +97,13 @@
             v-for="(border, index) in country.borders"
             :key="index"
             class="shadow-sm d-inline-block rounded-sm small px-3 m-1 border"
-            @click="handleChangeCountry(border)"
           >
-            {{ border }}
+            <router-link
+              :to="'/country/' + border"
+              class="text-decoration-none"
+            >
+              {{ border }}
+            </router-link>
           </span>
         </b-col>
       </b-col>
@@ -127,13 +131,14 @@ export default {
         this.country = response;
       });
     },
-    handleChangeCountry(border) {
-      this.$router.push({ path: "/country/" + border });
-      this.loadData();
-    },
   },
   created() {
     this.loadData();
+  },
+  watch: {
+    $route() {
+      this.loadData();
+    },
   },
 };
 </script>
