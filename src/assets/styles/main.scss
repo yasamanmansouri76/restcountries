@@ -1,0 +1,27 @@
+:root {
+  --primary-color-text: #000;
+  --primary-background-color-main: #fff;
+  --secondary-background-color-main: #FAFAFA;
+}
+
+[data-theme="dark"] {
+  --primary-color-text: #fff;
+  --primary-background-color-main: #2B3743;
+  --secondary-background-color-main: #202D36;
+}
+
+body{
+  background: var(--secondary-background-color-main) !important;
+}
+
+h1, h2, h3, h4, h5, h6, span, button, input, select{
+  color: var(--primary-color-text) !important;
+}
+
+button, input, select, a{
+  background: var(--primary-background-color-main) !important;
+}
+
+.pointer{
+  cursor: pointer;
+}
