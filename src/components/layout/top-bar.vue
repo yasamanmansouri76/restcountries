@@ -15,7 +15,7 @@ export default {
   name: "top-bar",
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .custom-nav {
   background: var(--primary-background-color-main) !important;
 }

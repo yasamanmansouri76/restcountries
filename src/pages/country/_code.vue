@@ -143,7 +143,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .detail-page {
   background: var(--secondary-background-color-main);
   .border {

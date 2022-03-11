@@ -39,7 +39,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .card {
   transition: 0.3s ease;
   background: var(--primary-background-color-main) !important;
