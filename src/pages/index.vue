@@ -12,7 +12,25 @@
           />
         </div>
       </b-col>
-      <b-col lg="6" cols="12" class="float-left">
+      <b-col lg="3" cols="12" class="float-left mb-3 mb-lg-0">
+        <b-button-group class="float-lg-right float-left">
+          <b-button
+            :class="activeSort === 'population' ? 'active' : ''"
+            @click="sortCountries('population')"
+          >
+            <b-icon icon="sort-alpha-down"></b-icon>
+            Population
+          </b-button>
+          <b-button
+            :class="activeSort === 'name' ? 'active' : ''"
+            @click="sortCountries('name')"
+          >
+            <b-icon icon="sort-numeric-down"></b-icon>
+            Country Name
+          </b-button>
+        </b-button-group>
+      </b-col>
+      <b-col lg="3" cols="12" class="float-left">
         <b-form-select
           v-model="selectedRegion"
           class="mb-3"
@@ -87,6 +105,7 @@ export default {
       pageSize: 8,
       isCountriesLoading: true,
       searchVal: "",
+      activeSort: "",
     };
   },
   components: {
@@ -119,6 +138,7 @@ export default {
     search() {
       if (this.searchVal !== null) {
         this.resetSelectedRegion();
+        this.resetSort();
         this.getCountryByName(this.searchVal)
           .then((response) => {
             this.setData(response);
@@ -131,6 +151,7 @@ export default {
     filterByRegion() {
       if (this.selectedRegion !== null) {
         this.page = 1;
+        this.resetSort();
         this.resetSearchValue();
         this.getCountryByRegion(this.selectedRegion)
           .then((response) => {
@@ -140,6 +161,19 @@ export default {
             this.resetData();
           });
       }
+    },
+    sortCountries(sortField) {
+      this.activeSort = sortField;
+      this.allCountries.sort((a, b) => {
+        if (typeof a[sortField] === "string") {
+          return a[sortField].localeCompare(b[sortField]);
+        } else {
+          return a[sortField] - b[sortField];
+        }
+      });
+      this.page = 1;
+      this.shownCountries = [];
+      this.getShownCountries();
     },
     setData(data) {
       this.allCountries = data;
@@ -168,6 +202,9 @@ export default {
     resetSearchValue() {
       this.searchVal = null;
     },
+    resetSort() {
+      this.activeSort = "";
+    },
   },
   created() {
     this.loadAllData();
@@ -188,6 +225,10 @@ export default {
 <style lang="scss">
 .home-page {
   background: var(--secondary-background-color-main);
+  .active {
+    border: 2px solid #38c138 !important;
+    outline: none;
+  }
   .form-group {
     position: relative;
   }
@@ -217,7 +258,7 @@ export default {
     border-radius: 2px;
     box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 8%) !important;
     float: right;
-    width: 30%;
+    width: 100%;
     font-size: 80%;
     font-weight: 400;
     height: 42px;
