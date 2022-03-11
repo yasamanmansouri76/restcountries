@@ -13,19 +13,30 @@
         </div>
       </b-col>
       <b-col lg="6" cols="12" class="float-left">
-        <b-form-select v-model="selected" class="mb-3">
+        <b-form-select
+          v-model="selectedRegion"
+          class="mb-3"
+          @input="filterByRegion"
+        >
           <b-form-select-option :value="null"
             >Please select an option</b-form-select-option
           >
-          <b-form-select-option value="a">Option A</b-form-select-option>
-          <b-form-select-option value="b" disabled
-            >Option B (disabled)</b-form-select-option
+          <b-form-select-option
+            v-for="region in regions"
+            :key="region.code"
+            :value="region.code"
+            >{{ region.name }}</b-form-select-option
           >
         </b-form-select>
       </b-col>
     </b-col>
     <b-col cols="12" class="float-left">
       <loading v-if="isCountriesLoading && allCountries.length <= 0" />
+      <span
+        v-else-if="!isCountriesLoading && allCountries.length <= 0"
+        class="d-block text-center"
+        >No record was founded!</span
+      >
       <b-card-group v-else deck>
         <b-col
           lg="3"
@@ -62,17 +73,17 @@
 <script>
 import countryCard from "../components/home/country-card";
 import loading from "../components/loading";
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import lodash from "lodash";
 
 export default {
   name: "homePage",
   data() {
     return {
-      selected: null,
+      selectedRegion: null,
       allCountries: [],
       shownCountries: [],
-      page: 2,
+      page: 1,
       pageSize: 8,
       isCountriesLoading: true,
       searchVal: "",
@@ -82,31 +93,80 @@ export default {
     countryCard,
     loading,
   },
+  computed: {
+    ...mapGetters({
+      getRegions: "enums/getRegions",
+    }),
+    regions() {
+      return this.getRegions;
+    },
+  },
   methods: {
     ...mapActions({
       getAllCountries: "country/getAllCountries",
       getCountryByName: "country/getCountryByName",
+      getCountryByRegion: "country/getCountryByRegion",
     }),
     loadAllData() {
-      this.getAllCountries().then((response) => {
-        this.allCountries = response;
-        this.shownCountries = [];
-        this.getShownCountries();
-      });
+      this.getAllCountries()
+        .then((response) => {
+          this.setData(response);
+        })
+        .catch(() => {
+          this.resetData();
+        });
+    },
+    search() {
+      if (this.searchVal !== null) {
+        this.resetSelectedRegion();
+        this.getCountryByName(this.searchVal)
+          .then((response) => {
+            this.setData(response);
+          })
+          .catch(() => {
+            this.resetData();
+          });
+      }
+    },
+    filterByRegion() {
+      if (this.selectedRegion !== null) {
+        this.page = 1;
+        this.resetSearchValue();
+        this.getCountryByRegion(this.selectedRegion)
+          .then((response) => {
+            this.setData(response);
+          })
+          .catch(() => {
+            this.resetData();
+          });
+      }
+    },
+    setData(data) {
+      this.allCountries = data;
+      this.shownCountries = [];
+      this.getShownCountries();
+    },
+    resetData() {
+      this.allCountries = [];
+      this.shownCountries = [];
     },
     getShownCountries() {
       this.isCountriesLoading = true;
-      const start = (this.page - 1) * this.pageSize;
-      const end = this.pageSize * this.page;
-      this.shownCountries.push(...this.allCountries.slice(start, end));
+      const startIndex = (this.page - 1) * this.pageSize;
+      const endIndex = this.pageSize * this.page;
+      const countries =
+        this.allCountries.length >= 8
+          ? this.allCountries.slice(startIndex, endIndex)
+          : this.allCountries;
+      this.shownCountries.push(...countries);
       this.page++;
       this.isCountriesLoading = false;
     },
-    search() {
-      this.getCountryByName(this.searchVal).then((response) => {
-        this.allCountries = response;
-        this.shownCountries = response;
-      });
+    resetSelectedRegion() {
+      this.selectedRegion = null;
+    },
+    resetSearchValue() {
+      this.searchVal = null;
     },
   },
   created() {
@@ -114,12 +174,13 @@ export default {
   },
   watch: {
     searchVal: lodash.debounce(function () {
+      this.page = 1;
       if (this.searchVal !== "") {
         this.search();
       } else {
         this.loadAllData();
       }
-    }, 2000),
+    }, 1000),
   },
 };
 </script>

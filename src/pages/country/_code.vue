@@ -97,7 +97,7 @@
             v-for="(border, index) in country.borders"
             :key="index"
             class="shadow-sm d-inline-block rounded-sm small px-3 m-1 border"
-            @click="redirectToBorder(border)"
+            @click="handleChangeCountry(border)"
           >
             {{ border }}
           </span>
@@ -127,9 +127,9 @@ export default {
         this.country = response;
       });
     },
-    redirectToBorder(border) {
+    handleChangeCountry(border) {
       this.$router.push({ path: "/country/" + border });
-      window.location.reload();
+      this.loadData();
     },
   },
   created() {
@@ -152,6 +152,7 @@ export default {
     object-fit: cover;
     @media (max-width: 992px) {
       width: 100%;
+      height: 200px;
     }
   }
   .shadow-sm {

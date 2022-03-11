@@ -17,5 +17,10 @@ export default {
         .get("/v2/name/" + payload)
         .then((response) => response.data);
     },
+    getCountryByRegion(context, payload) {
+      return Api()
+        .get("/v2/regionalbloc/" + payload)
+        .then((response) => response.data);
+    },
   },
 };
