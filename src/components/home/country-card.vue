@@ -6,7 +6,6 @@
       class="card-img-top"
       :blank="true"
       blank-color="#bbb"
-      height="200px"
       width="100%"
     ></b-img-lazy>
     <h4 class="card-title p-3 mb-0">{{ country.name }}</h4>
@@ -49,6 +48,7 @@ export default {
   }
   .card-img-top {
     object-fit: cover;
+    aspect-ratio: 8 / 5;
   }
   .card-body {
     padding: 0px;

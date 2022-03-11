@@ -49,9 +49,9 @@
       </b-col>
     </b-col>
     <b-col cols="12" class="float-left">
-      <loading v-if="isCountriesLoading && allCountries.length <= 0" />
+      <loading v-if="isCountriesLoading" />
       <span
-        v-else-if="!isCountriesLoading && allCountries.length <= 0"
+        v-else-if="!isCountriesLoading && shownCountries.length <= 0"
         class="d-block text-center"
         >No record was founded!</span
       >
@@ -71,9 +71,10 @@
           </router-link>
         </b-col>
       </b-card-group>
-      <loading v-if="isCountriesLoading && allCountries.length > 0" />
       <b-col
-        v-if="shownCountries.length < allCountries.length"
+        v-if="
+          !isCountriesLoading && shownCountries.length < allCountries.length
+        "
         class="text-center float-right my-3 w-100"
       >
         <b-button
@@ -150,6 +151,7 @@ export default {
       if (this.searchVal !== null) {
         this.resetSelectedRegion();
         this.resetSort();
+        this.isCountriesLoading = true;
         this.getCountryByName(this.searchVal)
           .then((response) => {
             this.setData(response);
@@ -182,6 +184,7 @@ export default {
         this.resetPageIndex();
         this.resetSort();
         this.resetSearchValue();
+        this.isCountriesLoading = true;
         this.getCountryByRegion(this.selectedRegion)
           .then((response) => {
             this.setData(response);
@@ -210,7 +213,6 @@ export default {
       this.getShownCountries();
     },
     getShownCountries() {
-      this.isCountriesLoading = true;
       const startIndex = (this.page - 1) * this.pageSize;
       const endIndex = this.pageSize * this.page;
       const countries =
@@ -239,6 +241,7 @@ export default {
     resetData() {
       this.allCountries = [];
       this.shownCountries = [];
+      this.isCountriesLoading = false;
     },
     resetSelectedRegion() {
       this.selectedRegion = null;
@@ -251,7 +254,8 @@ export default {
     },
   },
   created() {
-    this.loadAllData();
+    const { keyword, sort, region } = this.$route.query;
+    this.handleFiltersChange(keyword, sort, region);
   },
   watch: {
     searchVal: lodash.debounce(function () {

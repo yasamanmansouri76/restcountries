@@ -153,8 +153,8 @@ export default {
   }
   img {
     width: 95%;
-    height: 400px;
     object-fit: cover;
+    aspect-ratio: 2 / 1;
     @media (max-width: 992px) {
       width: 100%;
       height: 200px;
